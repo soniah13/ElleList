@@ -1,0 +1,12 @@
+{
+  "expo": {
+    "name": "ElleList",
+    "slug": "ellelist",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "scheme": "ellelist",
+    "plugins": ["expo-router"],
+    "web": { "bundler": "metro" }
+  }
+}
