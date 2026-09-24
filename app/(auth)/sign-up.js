@@ -4,13 +4,15 @@ import { StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { Button } from '../../src/components/Button';
 import { Screen } from '../../src/components/Screen';
-import { colors, radii, spacing, typography } from '../../src/constants/theme';
+import { radii, spacing, typography } from '../../src/constants/theme';
 import { useAuth } from '../../src/hooks/useAuth';
 import { getAuthErrorMessage } from '../../src/services/authService';
+import { useTheme } from '../../src/theme/ThemeProvider';
 
 export default function SignUpScreen() {
   const router = useRouter();
   const { signUp, user, loading: authLoading } = useAuth();
+  const { theme } = useTheme();
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -65,9 +67,9 @@ export default function SignUpScreen() {
   return (
     <Screen style={styles.screen}>
       <View style={styles.content}>
-        <Text style={styles.eyebrow}>A softer way to organize</Text>
-        <Text style={styles.title}>Create your ElleList</Text>
-        <Text style={styles.subtitle}>Keep your everyday tasks close and manageable.</Text>
+        <Text style={[styles.eyebrow, { color: theme.colors.primary }]}>A softer way to organize</Text>
+        <Text style={[styles.title, { color: theme.colors.text }]}>Create your ElleList</Text>
+        <Text style={[styles.subtitle, { color: theme.colors.textSecondary }]}>Keep your everyday tasks close and manageable.</Text>
 
         <View style={styles.form}>
           <TextInput
@@ -75,7 +77,7 @@ export default function SignUpScreen() {
             autoComplete="username"
             onChangeText={setUsername}
             placeholder="Username"
-            placeholderTextColor={colors.textMuted}
+            placeholderTextColor={theme.colors.textMuted}
             style={styles.input}
             value={username}
           />
@@ -85,7 +87,7 @@ export default function SignUpScreen() {
             keyboardType="email-address"
             onChangeText={setEmail}
             placeholder="Email"
-            placeholderTextColor={colors.textMuted}
+            placeholderTextColor={theme.colors.textMuted}
             style={styles.input}
             value={email}
           />
@@ -94,7 +96,7 @@ export default function SignUpScreen() {
             autoComplete="new-password"
             onChangeText={setPassword}
             placeholder="Password"
-            placeholderTextColor={colors.textMuted}
+            placeholderTextColor={theme.colors.textMuted}
             secureTextEntry
             style={styles.input}
             value={password}
@@ -104,19 +106,19 @@ export default function SignUpScreen() {
             autoComplete="new-password"
             onChangeText={setConfirmPassword}
             placeholder="Confirm password"
-            placeholderTextColor={colors.textMuted}
+            placeholderTextColor={theme.colors.textMuted}
             secureTextEntry
             style={styles.input}
             value={confirmPassword}
           />
-          {error ? <Text style={styles.error}>{error}</Text> : null}
-          {message ? <Text style={styles.message}>{message}</Text> : null}
+          {error ? <Text style={[styles.error, { color: theme.colors.primary }]}>{error}</Text> : null}
+          {message ? <Text style={[styles.message, { color: theme.colors.success }]}>{message}</Text> : null}
           <Button disabled={submitting} label={submitting ? 'Creating account...' : 'Create account'} onPress={handleSubmit} />
         </View>
 
-        <Text style={styles.footer}>
+        <Text style={[styles.footer, { color: theme.colors.textSecondary }]}>
           Already have an account?{' '}
-          <Link href="/sign-in" style={styles.link}>
+          <Link href="/sign-in" style={[styles.link, { color: theme.colors.primary }]}>
             Sign in
           </Link>
         </Text>
@@ -128,22 +130,19 @@ export default function SignUpScreen() {
 const styles = StyleSheet.create({
   screen: { justifyContent: 'center', padding: spacing.lg },
   content: { width: '100%' },
-  eyebrow: { color: colors.primary, fontSize: typography.size.sm, fontWeight: typography.weight.semibold },
-  title: { color: colors.text, fontSize: typography.size.xxl, fontWeight: typography.weight.bold, marginTop: spacing.xs },
-  subtitle: { color: colors.textSecondary, fontSize: typography.size.md, marginTop: spacing.sm },
+  eyebrow: { fontSize: typography.size.sm, fontWeight: typography.weight.semibold },
+  title: { fontSize: typography.size.xxl, fontWeight: typography.weight.bold, marginTop: spacing.xs },
+  subtitle: { fontSize: typography.size.md, marginTop: spacing.sm },
   form: { gap: spacing.md, marginTop: spacing.xl },
   input: {
-    backgroundColor: colors.surface,
-    borderColor: colors.border,
     borderRadius: radii.md,
     borderWidth: 1,
-    color: colors.text,
     fontSize: typography.size.md,
     minHeight: 52,
     paddingHorizontal: spacing.md,
   },
-  error: { color: '#A33A3A', fontSize: typography.size.sm },
-  message: { color: colors.success, fontSize: typography.size.sm },
-  footer: { color: colors.textSecondary, fontSize: typography.size.sm, marginTop: spacing.xl, textAlign: 'center' },
-  link: { color: colors.primary, fontWeight: typography.weight.semibold },
+  error: { fontSize: typography.size.sm },
+  message: { fontSize: typography.size.sm },
+  footer: { fontSize: typography.size.sm, marginTop: spacing.xl, textAlign: 'center' },
+  link: { fontWeight: typography.weight.semibold },
 });

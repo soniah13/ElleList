@@ -4,13 +4,15 @@ import { StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { Button } from '../../src/components/Button';
 import { Screen } from '../../src/components/Screen';
-import { colors, radii, spacing, typography } from '../../src/constants/theme';
+import { radii, spacing, typography } from '../../src/constants/theme';
 import { getAuthErrorMessage } from '../../src/services/authService';
 import { useAuth } from '../../src/hooks/useAuth';
+import { useTheme } from '../../src/theme/ThemeProvider';
 
 export default function SignInScreen() {
   const router = useRouter();
   const { signIn, user, loading: authLoading } = useAuth();
+  const { theme } = useTheme();
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -42,9 +44,9 @@ export default function SignInScreen() {
   return (
     <Screen style={styles.screen}>
       <View style={styles.content}>
-        <Text style={styles.eyebrow}>Welcome back</Text>
-        <Text style={styles.title}>Sign in to ElleList</Text>
-        <Text style={styles.subtitle}>Your calm plan for the day is waiting.</Text>
+        <Text style={[styles.eyebrow, { color: theme.colors.primary }]}>Welcome back</Text>
+        <Text style={[styles.title, { color: theme.colors.text }]}>Sign in to ElleList</Text>
+        <Text style={[styles.subtitle, { color: theme.colors.textSecondary }]}>Your calm plan for the day is waiting.</Text>
 
         <View style={styles.form}>
           <TextInput
@@ -52,8 +54,8 @@ export default function SignInScreen() {
             autoCapitalize="none"
             onChangeText={setIdentifier}
             placeholder="Username or email"
-            placeholderTextColor={colors.textMuted}
-            style={styles.input}
+            placeholderTextColor={theme.colors.textMuted}
+            style={[styles.input, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border, color: theme.colors.text }]}
             value={identifier}
           />
           <TextInput
@@ -61,18 +63,18 @@ export default function SignInScreen() {
             autoComplete="password"
             onChangeText={setPassword}
             placeholder="Password"
-            placeholderTextColor={colors.textMuted}
+            placeholderTextColor={theme.colors.textMuted}
             secureTextEntry
-            style={styles.input}
+            style={[styles.input, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border, color: theme.colors.text }]}
             value={password}
           />
-          {error ? <Text style={styles.error}>{error}</Text> : null}
+          {error ? <Text style={[styles.error, { color: theme.colors.primary }]}>{error}</Text> : null}
           <Button disabled={submitting} label={submitting ? 'Signing in...' : 'Sign in'} onPress={handleSubmit} />
         </View>
 
-        <Text style={styles.footer}>
+        <Text style={[styles.footer, { color: theme.colors.textSecondary }]}>
           New to ElleList?{' '}
-          <Link href="/sign-up" style={styles.link}>
+          <Link href="/sign-up" style={[styles.link, { color: theme.colors.primary }]}>
             Create an account
           </Link>
         </Text>
@@ -84,21 +86,18 @@ export default function SignInScreen() {
 const styles = StyleSheet.create({
   screen: { justifyContent: 'center', padding: spacing.lg },
   content: { width: '100%' },
-  eyebrow: { color: colors.primary, fontSize: typography.size.sm, fontWeight: typography.weight.semibold },
-  title: { color: colors.text, fontSize: typography.size.xxl, fontWeight: typography.weight.bold, marginTop: spacing.xs },
-  subtitle: { color: colors.textSecondary, fontSize: typography.size.md, marginTop: spacing.sm },
+  eyebrow: { fontSize: typography.size.sm, fontWeight: typography.weight.semibold },
+  title: { fontSize: typography.size.xxl, fontWeight: typography.weight.bold, marginTop: spacing.xs },
+  subtitle: { fontSize: typography.size.md, marginTop: spacing.sm },
   form: { gap: spacing.md, marginTop: spacing.xl },
   input: {
-    backgroundColor: colors.surface,
-    borderColor: colors.border,
     borderRadius: radii.md,
     borderWidth: 1,
-    color: colors.text,
     fontSize: typography.size.md,
     minHeight: 52,
     paddingHorizontal: spacing.md,
   },
-  error: { color: '#A33A3A', fontSize: typography.size.sm },
-  footer: { color: colors.textSecondary, fontSize: typography.size.sm, marginTop: spacing.xl, textAlign: 'center' },
-  link: { color: colors.primary, fontWeight: typography.weight.semibold },
+  error: { fontSize: typography.size.sm },
+  footer: { fontSize: typography.size.sm, marginTop: spacing.xl, textAlign: 'center' },
+  link: { fontWeight: typography.weight.semibold },
 });

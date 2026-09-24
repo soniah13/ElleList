@@ -1,14 +1,15 @@
 import { Redirect, Stack } from 'expo-router';
 import { ActivityIndicator, View } from 'react-native';
 
-import { colors } from '../../src/constants/theme';
 import { useAuth } from '../../src/hooks/useAuth';
+import { useTheme } from '../../src/theme/ThemeProvider';
 
 export default function TaskLayout() {
   const { loading, user } = useAuth();
+  const { theme } = useTheme();
 
   if (loading) {
-    return <View style={{ alignItems: 'center', flex: 1, justifyContent: 'center' }}><ActivityIndicator color={colors.primary} /></View>;
+    return <View style={{ alignItems: 'center', backgroundColor: theme.colors.background, flex: 1, justifyContent: 'center' }}><ActivityIndicator color={theme.colors.primary} /></View>;
   }
 
   if (!user) {

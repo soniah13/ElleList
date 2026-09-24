@@ -3,12 +3,13 @@ import { ActivityIndicator, Text } from 'react-native';
 
 import { TaskForm } from '../../src/components/TaskForm';
 import { Screen } from '../../src/components/Screen';
-import { colors } from '../../src/constants/theme';
 import { useTasks } from '../../src/hooks/useTasks';
+import { useTheme } from '../../src/theme/ThemeProvider';
 
 export default function EditTaskScreen() {
   const router = useRouter();
   const { id, date } = useLocalSearchParams();
+  const { theme } = useTheme();
   const taskDate = Array.isArray(date) ? date[0] : date;
   const { tasks, loading, mutationLoading, error, updateTask, deleteTask } = useTasks(taskDate);
   const task = tasks.find((item) => item.id === id);
@@ -16,7 +17,7 @@ export default function EditTaskScreen() {
   if (loading) {
     return (
       <Screen style={{ alignItems: 'center', justifyContent: 'center' }}>
-        <ActivityIndicator color={colors.primary} />
+        <ActivityIndicator color={theme.colors.primary} />
       </Screen>
     );
   }

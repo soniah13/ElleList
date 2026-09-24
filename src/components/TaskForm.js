@@ -4,14 +4,16 @@ import { Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } fr
 import { Button } from './Button';
 import { Screen } from './Screen';
 import { taskCategories } from '../constants/taskModel';
-import { colors, radii, spacing, typography } from '../constants/theme';
+import { radii, spacing, typography } from '../constants/theme';
 import { getLocalDateString } from '../lib/date';
+import { useTheme } from '../theme/ThemeProvider';
 
 const priorities = ['low', 'medium', 'high'];
 const recurrences = ['none', 'daily', 'weekly'];
 const NativeDateTimePicker = Platform.OS === 'web' ? null : require('@react-native-community/datetimepicker').default;
 
 export function TaskForm({ title, initialTask, loading, error, onSave, onCancel, onDelete }) {
+  const { theme } = useTheme();
   const [form, setForm] = useState({
     title: initialTask?.title || '',
     date: initialTask?.date || getLocalDateString(),
@@ -65,13 +67,13 @@ export function TaskForm({ title, initialTask, loading, error, onSave, onCancel,
   return (
     <Screen>
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-        <Text style={styles.title}>{title}</Text>
+        <Text style={[styles.title, { color: theme.colors.text }]}>{title}</Text>
         <TextInput
           autoFocus={!initialTask}
           onChangeText={(value) => updateField('title', value)}
           placeholder="Task title"
-          placeholderTextColor={colors.textMuted}
-          style={styles.input}
+          placeholderTextColor={theme.colors.textMuted}
+          style={[styles.input, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border, color: theme.colors.text }]}
           value={form.title}
         />
         <PickerField
@@ -102,19 +104,19 @@ export function TaskForm({ title, initialTask, loading, error, onSave, onCancel,
           multiline
           onChangeText={(value) => updateField('notes', value)}
           placeholder="Notes (optional)"
-          placeholderTextColor={colors.textMuted}
-          style={[styles.input, styles.notes]}
+          placeholderTextColor={theme.colors.textMuted}
+          style={[styles.input, styles.notes, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border, color: theme.colors.text }]}
           value={form.notes}
         />
 
-        <Text style={styles.label}>Category</Text>
+        <Text style={[styles.label, { color: theme.colors.textSecondary }]}>Category</Text>
         <OptionGroup options={taskCategories} selected={form.category} onSelect={(value) => updateField('category', value)} />
-        <Text style={styles.label}>Priority</Text>
+        <Text style={[styles.label, { color: theme.colors.textSecondary }]}>Priority</Text>
         <OptionGroup options={priorities} selected={form.priority} onSelect={(value) => updateField('priority', value)} />
-        <Text style={styles.label}>Recurrence</Text>
+        <Text style={[styles.label, { color: theme.colors.textSecondary }]}>Recurrence</Text>
         <OptionGroup options={recurrences} selected={form.recurrence} onSelect={(value) => updateField('recurrence', value)} />
 
-        {validationError || error ? <Text style={styles.error}>{validationError || error}</Text> : null}
+        {validationError || error ? <Text style={[styles.error, { color: theme.colors.primary }]}>{validationError || error}</Text> : null}
         <Button disabled={loading} label={loading ? 'Saving...' : 'Save task'} onPress={handleSave} />
         <Button label="Cancel" onPress={onCancel} />
         {onDelete ? <Button disabled={loading} label="Delete task" onPress={onDelete} /> : null}
@@ -134,27 +136,29 @@ function OptionGroup({ options, selected, onSelect }) {
 }
 
 function PickerField({ icon, label, optional, onPress, value, webType, onWebChange }) {
+  const { theme } = useTheme();
+
   if (Platform.OS === 'web') {
     return (
       <View style={styles.webPickerField}>
-        <Text style={styles.pickerLabel}>{icon} {label}{optional ? ' (optional)' : ''}</Text>
+        <Text style={[styles.pickerLabel, { color: theme.colors.textSecondary }]}>{icon} {label}{optional ? ' (optional)' : ''}</Text>
         {createElement('input', {
           'aria-label': label,
           onChange: (event) => onWebChange(event.target.value),
           type: webType,
           value,
-          style: styles.webPicker,
+          style: [styles.webPicker, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border, color: theme.colors.text }],
         })}
       </View>
     );
   }
 
   return (
-    <Pressable accessibilityRole="button" onPress={onPress} style={styles.pickerButton}>
-      <Text style={styles.pickerIcon}>{icon}</Text>
+    <Pressable accessibilityRole="button" onPress={onPress} style={[styles.pickerButton, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}>
+      <Text style={[styles.pickerIcon, { color: theme.colors.primary }]}>{icon}</Text>
       <View>
-        <Text style={styles.pickerLabel}>{label}{optional ? ' (optional)' : ''}</Text>
-        <Text style={styles.pickerValue}>{value || 'Choose a time'}</Text>
+        <Text style={[styles.pickerLabel, { color: theme.colors.textSecondary }]}>{label}{optional ? ' (optional)' : ''}</Text>
+        <Text style={[styles.pickerValue, { color: theme.colors.text }]}>{value || 'Choose a time'}</Text>
       </View>
     </Pressable>
   );
@@ -182,25 +186,22 @@ function formatTime(date) {
 
 const styles = StyleSheet.create({
   content: { gap: spacing.md, padding: spacing.lg, paddingBottom: spacing.xxl },
-  title: { color: colors.text, fontSize: typography.size.xxl, fontWeight: typography.weight.bold, marginBottom: spacing.sm },
+  title: { fontSize: typography.size.xxl, fontWeight: typography.weight.bold, marginBottom: spacing.sm },
   input: {
-    backgroundColor: colors.surface,
-    borderColor: colors.border,
     borderRadius: radii.md,
     borderWidth: 1,
-    color: colors.text,
     fontSize: typography.size.md,
     minHeight: 52,
     paddingHorizontal: spacing.md,
   },
   notes: { minHeight: 96, paddingTop: spacing.md, textAlignVertical: 'top' },
-  label: { color: colors.textSecondary, fontSize: typography.size.sm, fontWeight: typography.weight.semibold },
+  label: { fontSize: typography.size.sm, fontWeight: typography.weight.semibold },
   options: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
-  pickerButton: { alignItems: 'center', backgroundColor: colors.surface, borderColor: colors.border, borderRadius: radii.md, borderWidth: 1, flexDirection: 'row', gap: spacing.md, minHeight: 64, paddingHorizontal: spacing.md },
-  pickerIcon: { color: colors.primary, fontSize: typography.size.xl },
-  pickerLabel: { color: colors.textSecondary, fontSize: typography.size.sm, fontWeight: typography.weight.semibold },
-  pickerValue: { color: colors.text, fontSize: typography.size.md, marginTop: spacing.xs },
+  pickerButton: { alignItems: 'center', borderRadius: radii.md, borderWidth: 1, flexDirection: 'row', gap: spacing.md, minHeight: 64, paddingHorizontal: spacing.md },
+  pickerIcon: { fontSize: typography.size.xl },
+  pickerLabel: { fontSize: typography.size.sm, fontWeight: typography.weight.semibold },
+  pickerValue: { fontSize: typography.size.md, marginTop: spacing.xs },
   webPickerField: { gap: spacing.xs },
-  webPicker: { backgroundColor: colors.surface, borderColor: colors.border, borderRadius: radii.md, borderStyle: 'solid', borderWidth: 1, boxSizing: 'border-box', color: colors.text, fontFamily: 'inherit', fontSize: typography.size.md, minHeight: 52, paddingHorizontal: spacing.md, width: '100%' },
-  error: { color: '#A33A3A', fontSize: typography.size.sm },
+  webPicker: { borderRadius: radii.md, borderStyle: 'solid', borderWidth: 1, boxSizing: 'border-box', fontFamily: 'inherit', fontSize: typography.size.md, minHeight: 52, paddingHorizontal: spacing.md, width: '100%' },
+  error: { fontSize: typography.size.sm },
 });
