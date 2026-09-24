@@ -1,10 +1,12 @@
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useRouter } from 'expo-router';
+import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { Button } from '../../src/components/Button';
+import { EmptyState } from '../../src/components/EmptyState';
 import { Screen } from '../../src/components/Screen';
 import { TaskRow } from '../../src/components/TaskRow';
-import { mockTasks } from '../../src/constants/mockTasks';
 import { colors, radii, spacing, typography } from '../../src/constants/theme';
+import { getLocalDateString } from '../../src/lib/date';
 import { useTasks } from '../../src/hooks/useTasks';
 
 function getTodayLabel() {
@@ -16,7 +18,8 @@ function getTodayLabel() {
 }
 
 export default function HomeScreen() {
-  const { tasks, toggleTask } = useTasks(mockTasks);
+  const router = useRouter();
+  const { tasks, loading, error, toggleTask, mutationLoading } = useTasks(getLocalDateString());
   const completedCount = tasks.filter((task) => task.completed).length;
 
   return (
@@ -28,7 +31,7 @@ export default function HomeScreen() {
 
         <View style={styles.overview}>
           <View>
-            <Text style={styles.overviewLabel}>Today's tasks</Text>
+            <Text style={styles.overviewLabel}>Today&apos;s tasks</Text>
             <Text style={styles.overviewValue}>
               {completedCount} of {tasks.length} complete
             </Text>
@@ -36,16 +39,27 @@ export default function HomeScreen() {
           <Text style={styles.overviewMark}>{tasks.length - completedCount}</Text>
         </View>
 
+        {error ? <Text style={styles.error}>{error}</Text> : null}
         <View style={styles.tasks}>
-          {tasks.map((task) => (
-            <TaskRow key={task.id} task={task} onToggle={toggleTask} />
-          ))}
+          {loading ? <ActivityIndicator color={colors.primary} /> : null}
+          {!loading && !tasks.length ? <EmptyState message="Nothing planned for today yet." /> : null}
+          {!loading
+            ? tasks.map((task) => (
+                <TaskRow
+                  key={task.id}
+                  disabled={mutationLoading}
+                  onEdit={() => router.push(`/task/edit?id=${task.id}&date=${task.date}`)}
+                  onToggle={() => toggleTask(task)}
+                  task={task}
+                />
+              ))
+            : null}
         </View>
 
         <Button
           label="Add task"
-          onPress={() => {}}
-          accessibilityHint="Task creation will be added later"
+          onPress={() => router.push('/task/new')}
+          accessibilityHint="Create a new task"
         />
       </ScrollView>
     </Screen>
@@ -89,4 +103,5 @@ const styles = StyleSheet.create({
     fontWeight: typography.weight.bold,
   },
   tasks: { gap: spacing.sm, marginVertical: spacing.lg },
+  error: { color: '#A33A3A', fontSize: typography.size.sm, marginTop: spacing.lg },
 });

@@ -9,7 +9,7 @@ const categoryColors = {
   Health: colors.categoryHealth,
 };
 
-export function TaskRow({ task, onToggle }) {
+export function TaskRow({ task, onToggle, onEdit, disabled = false }) {
   const categoryColor = categoryColors[task.category] || colors.primarySoft;
   const checkboxLabel = 'Mark ' + task.title + ' as ' + (task.completed ? 'incomplete' : 'complete');
 
@@ -19,12 +19,13 @@ export function TaskRow({ task, onToggle }) {
         accessibilityLabel={checkboxLabel}
         accessibilityRole="checkbox"
         accessibilityState={{ checked: task.completed }}
-        onPress={() => onToggle(task.id)}
+        disabled={disabled}
+        onPress={onToggle}
         style={[styles.checkbox, task.completed && styles.checked]}
       >
-        {task.completed ? <Text style={styles.checkmark}>?</Text> : null}
+        {task.completed ? <Text style={styles.checkmark}>✓</Text> : null}
       </Pressable>
-      <View style={styles.details}>
+      <Pressable disabled={disabled} onPress={onEdit} style={styles.details}>
         <Text numberOfLines={2} style={[styles.title, task.completed && styles.completedTitle]}>
           {task.title}
         </Text>
@@ -34,7 +35,7 @@ export function TaskRow({ task, onToggle }) {
             <Text style={styles.badgeText}>{task.category}</Text>
           </View>
         </View>
-      </View>
+      </Pressable>
     </View>
   );
 }

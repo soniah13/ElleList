@@ -1,5 +1,10 @@
 virtual/
 
+# Local environment variables
+.env
+.env.*
+!.env.example
+
 # Expo and Node
 node_modules/
 .expo/

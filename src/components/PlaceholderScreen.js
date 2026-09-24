@@ -3,12 +3,13 @@ import { StyleSheet, Text, View } from 'react-native';
 import { colors, radii, spacing, typography } from '../constants/theme';
 import { Screen } from './Screen';
 
-export function PlaceholderScreen({ title, message }) {
+export function PlaceholderScreen({ title, message, children }) {
   return (
     <Screen style={styles.screen}>
       <View style={styles.card}>
         <Text style={styles.title}>{title}</Text>
         <Text style={styles.body}>{message}</Text>
+        {children}
       </View>
     </Screen>
   );

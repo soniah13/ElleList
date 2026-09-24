@@ -1,6 +1,6 @@
 # ElleList
 
-ElleList is a calm, personal routine and household task manager. This repository contains the first mobile-app foundation only: a simple daily task prototype and the navigation structure it will grow into.
+ElleList is a calm, personal routine and household task manager built with Expo and React Native.
 
 ## Tech stack
 
@@ -8,6 +8,7 @@ ElleList is a calm, personal routine and household task manager. This repository
 - React Native with Expo
 - Expo Router for file-based navigation
 - ESLint using Expo configuration
+- Supabase for email/password authentication and task persistence
 
 ## Install
 
@@ -34,22 +35,46 @@ Target-specific commands:
     src/
       components/           Reusable UI building blocks
       constants/            Theme, task model, and mock task data
-      hooks/                Local UI state hooks
+            hooks/                Authentication and task data hooks
+            lib/                  Supabase client and local-date utilities
+            services/             Authentication and task data services
+        supabase/
+            migrations/           SQL schema and Row Level Security policies
 
 ## Implemented now
 
 - Four-tab Expo Router navigation: Today, Routines, Insights, and Settings
-- Home dashboard with date, welcome message, mock tasks, category badges, and an Add task placeholder
-- Local-only task completion toggles
+- Email/password sign up and sign in
+- Session persistence using AsyncStorage
+- Supabase-backed Today task list with date filtering
+- Task creation, editing, completion, and deletion
+- Loading, empty, and user-friendly error states
 - Theme tokens, screen wrapper, button, and task row
-- Documented plain-JavaScript task shape and realistic mock data
+- Documented plain-JavaScript task shape
 
 ## Intentionally not implemented
 
-- Task creation, editing, deletion, or persistence
-- Authentication, accounts, or database integration
 - AI, voice input, pattern learning, widgets, and notifications
-- API keys or third-party service integrations
+- Advanced recurrence generation and household member management
+- API keys or third-party service integrations beyond Supabase
+
+## Supabase setup
+
+1. Create a Supabase project.
+2. Copy `.env.example` to `.env` and set:
+
+       EXPO_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+       EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-publishable-key
+
+   Use the publishable/anon client key only. Never put a service-role or secret key in the app.
+3. Apply the database migration with the Supabase CLI:
+
+       npx supabase db push
+
+   The migration creates the `tasks` table, enables Row Level Security, and restricts every operation to the authenticated user's `user_id`.
+4. Start the app with `npm start`.
+
+The app restores the Supabase session on launch. Unauthenticated users see Sign In; authenticated users enter the protected tab navigator. Tasks flow from the Today screen through `useTasks`, into `taskService`, and then through the shared client in `src/lib/supabase.js`.
 
 ## Checks
 
