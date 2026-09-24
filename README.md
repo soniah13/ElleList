@@ -67,14 +67,14 @@ Target-specific commands:
        EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-publishable-key
 
    Use the publishable/anon client key only. Never put a service-role or secret key in the app.
-3. Apply the database migration with the Supabase CLI:
+3. Apply the database migrations with the Supabase CLI:
 
        npx supabase db push
 
-   The migration creates the `tasks` table, enables Row Level Security, and restricts every operation to the authenticated user's `user_id`.
+    The migrations create the `tasks` table and the unique `profiles.username` field. Row Level Security restricts task and profile access to the authenticated user. New users must choose a unique username containing 3-30 letters, numbers, or underscores.
 4. Start the app with `npm start`.
 
-The app restores the Supabase session on launch. Unauthenticated users see Sign In; authenticated users enter the protected tab navigator. Tasks flow from the Today screen through `useTasks`, into `taskService`, and then through the shared client in `src/lib/supabase.js`.
+The app restores the Supabase session on launch. Unauthenticated users see Sign In; authenticated users enter the protected tab navigator. Users can sign in with either their email or username. Tasks flow from the Today screen through `useTasks`, into `taskService`, and then through the shared client in `src/lib/supabase.js`.
 
 ## Checks
 

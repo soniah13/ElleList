@@ -11,7 +11,7 @@ import { useAuth } from '../../src/hooks/useAuth';
 export default function SignInScreen() {
   const router = useRouter();
   const { signIn, user, loading: authLoading } = useAuth();
-  const [email, setEmail] = useState('');
+  const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -21,14 +21,14 @@ export default function SignInScreen() {
   }
 
   async function handleSubmit() {
-    if (!email.trim() || !password) {
-      setError('Enter your email and password.');
+    if (!identifier.trim() || !password) {
+      setError('Enter your username/email and password.');
       return;
     }
 
     setError('');
     setSubmitting(true);
-    const { error: signInError } = await signIn(email, password);
+    const { error: signInError } = await signIn(identifier, password);
     setSubmitting(false);
 
     if (signInError) {
@@ -48,14 +48,13 @@ export default function SignInScreen() {
 
         <View style={styles.form}>
           <TextInput
+            autoComplete="username"
             autoCapitalize="none"
-            autoComplete="email"
-            keyboardType="email-address"
-            onChangeText={setEmail}
-            placeholder="Email"
+            onChangeText={setIdentifier}
+            placeholder="Username or email"
             placeholderTextColor={colors.textMuted}
             style={styles.input}
-            value={email}
+            value={identifier}
           />
           <TextInput
             autoCapitalize="none"

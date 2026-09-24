@@ -11,6 +11,7 @@ import { getAuthErrorMessage } from '../../src/services/authService';
 export default function SignUpScreen() {
   const router = useRouter();
   const { signUp, user, loading: authLoading } = useAuth();
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -23,8 +24,13 @@ export default function SignUpScreen() {
   }
 
   async function handleSubmit() {
-    if (!email.trim() || !password || !confirmPassword) {
+    if (!username.trim() || !email.trim() || !password || !confirmPassword) {
       setError('Complete all fields.');
+      return;
+    }
+
+    if (!/^[a-zA-Z0-9_]{3,30}$/.test(username.trim())) {
+      setError('Username must be 3-30 characters using letters, numbers, or underscores.');
       return;
     }
 
@@ -41,7 +47,7 @@ export default function SignUpScreen() {
     setError('');
     setMessage('');
     setSubmitting(true);
-    const { data, error: signUpError } = await signUp(email, password);
+    const { data, error: signUpError } = await signUp(username, email, password);
     setSubmitting(false);
 
     if (signUpError) {
@@ -64,6 +70,15 @@ export default function SignUpScreen() {
         <Text style={styles.subtitle}>Keep your everyday tasks close and manageable.</Text>
 
         <View style={styles.form}>
+          <TextInput
+            autoCapitalize="none"
+            autoComplete="username"
+            onChangeText={setUsername}
+            placeholder="Username"
+            placeholderTextColor={colors.textMuted}
+            style={styles.input}
+            value={username}
+          />
           <TextInput
             autoCapitalize="none"
             autoComplete="email"
