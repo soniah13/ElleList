@@ -61,7 +61,7 @@ Target-specific commands:
 ## Supabase setup
 
 1. Create a Supabase project.
-2. Copy `.env.example` to `.env` and set:
+2. Copy `.env` to `.env` and set:
 
        EXPO_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
        EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-publishable-key

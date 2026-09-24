@@ -3,7 +3,7 @@ virtual/
 # Local environment variables
 .env
 .env.*
-!.env.example
+!.env
 
 # Expo and Node
 node_modules/
