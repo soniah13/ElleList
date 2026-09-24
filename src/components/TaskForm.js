@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { createElement, useState } from 'react';
+import { Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { Button } from './Button';
 import { Screen } from './Screen';
@@ -9,6 +9,7 @@ import { getLocalDateString } from '../lib/date';
 
 const priorities = ['low', 'medium', 'high'];
 const recurrences = ['none', 'daily', 'weekly'];
+const NativeDateTimePicker = Platform.OS === 'web' ? null : require('@react-native-community/datetimepicker').default;
 
 export function TaskForm({ title, initialTask, loading, error, onSave, onCancel, onDelete }) {
   const [form, setForm] = useState({
@@ -21,9 +22,24 @@ export function TaskForm({ title, initialTask, loading, error, onSave, onCancel,
     notes: initialTask?.notes || '',
   });
   const [validationError, setValidationError] = useState('');
+  const [pickerMode, setPickerMode] = useState(null);
 
   function updateField(field, value) {
     setForm((current) => ({ ...current, [field]: value }));
+  }
+
+  function handleNativePickerChange(event, selectedDate) {
+    setPickerMode(null);
+
+    if (!selectedDate || event.type === 'dismissed') {
+      return;
+    }
+
+    if (pickerMode === 'date') {
+      updateField('date', formatDate(selectedDate));
+    } else {
+      updateField('time', formatTime(selectedDate));
+    }
   }
 
   function handleSave() {
@@ -58,22 +74,30 @@ export function TaskForm({ title, initialTask, loading, error, onSave, onCancel,
           style={styles.input}
           value={form.title}
         />
-        <TextInput
-          keyboardType="numbers-and-punctuation"
-          onChangeText={(value) => updateField('date', value)}
-          placeholder="Date (YYYY-MM-DD)"
-          placeholderTextColor={colors.textMuted}
-          style={styles.input}
+        <PickerField
+          icon="◫"
+          label="Date"
+          onPress={() => setPickerMode('date')}
           value={form.date}
+          webType="date"
+          onWebChange={(value) => updateField('date', value)}
         />
-        <TextInput
-          keyboardType="numbers-and-punctuation"
-          onChangeText={(value) => updateField('time', value)}
-          placeholder="Time (HH:MM, optional)"
-          placeholderTextColor={colors.textMuted}
-          style={styles.input}
+        <PickerField
+          icon="◷"
+          label="Time"
+          onPress={() => setPickerMode('time')}
+          optional
           value={form.time}
+          webType="time"
+          onWebChange={(value) => updateField('time', value)}
         />
+        {pickerMode && Platform.OS !== 'web' ? (
+          <NativeDateTimePicker
+            mode={pickerMode}
+            onChange={handleNativePickerChange}
+            value={getPickerDate(form, pickerMode)}
+          />
+        ) : null}
         <TextInput
           multiline
           onChangeText={(value) => updateField('notes', value)}
@@ -103,10 +127,57 @@ function OptionGroup({ options, selected, onSelect }) {
   return (
     <View style={styles.options}>
       {options.map((option) => (
-        <Button key={option} label={option} onPress={() => onSelect(option)} />
+        <Button key={option} label={option} onPress={() => onSelect(option)} selected={selected === option} />
       ))}
     </View>
   );
+}
+
+function PickerField({ icon, label, optional, onPress, value, webType, onWebChange }) {
+  if (Platform.OS === 'web') {
+    return (
+      <View style={styles.webPickerField}>
+        <Text style={styles.pickerLabel}>{icon} {label}{optional ? ' (optional)' : ''}</Text>
+        {createElement('input', {
+          'aria-label': label,
+          onChange: (event) => onWebChange(event.target.value),
+          type: webType,
+          value,
+          style: styles.webPicker,
+        })}
+      </View>
+    );
+  }
+
+  return (
+    <Pressable accessibilityRole="button" onPress={onPress} style={styles.pickerButton}>
+      <Text style={styles.pickerIcon}>{icon}</Text>
+      <View>
+        <Text style={styles.pickerLabel}>{label}{optional ? ' (optional)' : ''}</Text>
+        <Text style={styles.pickerValue}>{value || 'Choose a time'}</Text>
+      </View>
+    </Pressable>
+  );
+}
+
+function getPickerDate(form, mode) {
+  const [year, month, day] = form.date.split('-').map(Number);
+  const [hours = 0, minutes = 0] = (form.time || '00:00').split(':').map(Number);
+  const date = new Date(year, month - 1, day, hours, minutes);
+
+  if (mode === 'time' && !form.time) {
+    date.setHours(9, 0, 0, 0);
+  }
+
+  return date;
+}
+
+function formatDate(date) {
+  return [date.getFullYear(), String(date.getMonth() + 1).padStart(2, '0'), String(date.getDate()).padStart(2, '0')].join('-');
+}
+
+function formatTime(date) {
+  return [String(date.getHours()).padStart(2, '0'), String(date.getMinutes()).padStart(2, '0')].join(':');
 }
 
 const styles = StyleSheet.create({
@@ -125,5 +196,11 @@ const styles = StyleSheet.create({
   notes: { minHeight: 96, paddingTop: spacing.md, textAlignVertical: 'top' },
   label: { color: colors.textSecondary, fontSize: typography.size.sm, fontWeight: typography.weight.semibold },
   options: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
+  pickerButton: { alignItems: 'center', backgroundColor: colors.surface, borderColor: colors.border, borderRadius: radii.md, borderWidth: 1, flexDirection: 'row', gap: spacing.md, minHeight: 64, paddingHorizontal: spacing.md },
+  pickerIcon: { color: colors.primary, fontSize: typography.size.xl },
+  pickerLabel: { color: colors.textSecondary, fontSize: typography.size.sm, fontWeight: typography.weight.semibold },
+  pickerValue: { color: colors.text, fontSize: typography.size.md, marginTop: spacing.xs },
+  webPickerField: { gap: spacing.xs },
+  webPicker: { backgroundColor: colors.surface, borderColor: colors.border, borderRadius: radii.md, borderStyle: 'solid', borderWidth: 1, boxSizing: 'border-box', color: colors.text, fontFamily: 'inherit', fontSize: typography.size.md, minHeight: 52, paddingHorizontal: spacing.md, width: '100%' },
   error: { color: '#A33A3A', fontSize: typography.size.sm },
 });

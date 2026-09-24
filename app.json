@@ -6,7 +6,12 @@
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "scheme": "ellelist",
-    "plugins": ["expo-router"],
-    "web": { "bundler": "metro" }
+    "plugins": [
+      "expo-router",
+      "@react-native-community/datetimepicker"
+    ],
+    "web": {
+      "bundler": "metro"
+    }
   }
 }

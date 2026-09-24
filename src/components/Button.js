@@ -2,7 +2,7 @@ import { Pressable, StyleSheet, Text } from 'react-native';
 
 import { colors, radii, spacing, typography } from '../constants/theme';
 
-export function Button({ label, onPress, accessibilityHint, disabled = false }) {
+export function Button({ label, onPress, accessibilityHint, disabled = false, selected = false }) {
   return (
     <Pressable
       accessibilityHint={accessibilityHint}
@@ -11,11 +11,13 @@ export function Button({ label, onPress, accessibilityHint, disabled = false }) 
       onPress={onPress}
       style={({ pressed }) => [
         styles.button,
+        selected && styles.selected,
+        selected === false && styles.unselected,
         pressed && !disabled && styles.pressed,
         disabled && styles.disabled,
       ]}
     >
-      <Text style={styles.label}>{label}</Text>
+      <Text style={[styles.label, selected === false && styles.unselectedLabel]}>{label}</Text>
     </Pressable>
   );
 }
@@ -29,6 +31,10 @@ const styles = StyleSheet.create({
     minHeight: 52,
     paddingHorizontal: spacing.lg,
   },
+  selected: { backgroundColor: colors.primary },
+  selectedLabel: { color: colors.surface },
+  unselected: { backgroundColor: colors.primarySoft, borderColor: colors.border, borderWidth: 1 },
+  unselectedLabel: { color: colors.primary },
   pressed: { opacity: 0.85 },
   disabled: { opacity: 0.5 },
   label: {
